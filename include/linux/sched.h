@@ -1000,6 +1000,10 @@ struct task_struct {
 	/* to be used once the psi infrastructure lands upstream. */
 	unsigned			use_memdelay:1;
 #endif
+#ifdef CONFIG_PSI
+	/* Stalled due to lack of memory */
+	unsigned			in_memstall:1;
+#endif
 
 	unsigned long			atomic_flags; /* Flags requiring atomic access. */
 
