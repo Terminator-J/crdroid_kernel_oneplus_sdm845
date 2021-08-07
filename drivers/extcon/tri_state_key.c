@@ -131,6 +131,14 @@ static void extcon_dev_work(struct work_struct *work)
 		extcon_set_state_sync(extcon_data->edev, 1, key[0]);
 		extcon_set_state_sync(extcon_data->edev, 2, key[1]);
 		extcon_set_state_sync(extcon_data->edev, 3, key[2]);
+
+		if (key[0] == 1 && key[2] == 1) {
+		    extcon_data->state = 2; //middle position
+		} else if (key[0] == 0 && key[2] == 1) {
+		    extcon_data->state = 3; //bottom position
+		} else if(key[0] == 1 && key[2] == 0) {
+		    extcon_data->state = 1; //top position
+		}
 	}
 }
 
@@ -204,7 +212,6 @@ static int tristate_dev_probe(struct platform_device *pdev)
 {
 	struct device *dev;
 	int ret = 0;
-	int err = 0;
 
 	dev = &pdev->dev;
 
@@ -237,8 +244,8 @@ static int tristate_dev_probe(struct platform_device *pdev)
 	}
 
 	// tri_key node creation error handler
-	err = sysfs_create_group(&pdev->dev.kobj, &tri_key_attribute_group);
-	if (err) {
+	ret = sysfs_create_group(&pdev->dev.kobj, &tri_key_attribute_group);
+	if (ret) {
 		pr_err("tri_key:sysfs_create_group failed(%d)\n", err);
 		return -ENOMEM;
 	}
