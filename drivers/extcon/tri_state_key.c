@@ -72,6 +72,7 @@ struct extcon_dev_data {
 
 };
 
+static int state = 0;
 static struct extcon_dev_data *extcon_data;
 static DEFINE_MUTEX(sem);
 static int set_gpio_by_pinctrl(void)
@@ -84,7 +85,7 @@ static int set_gpio_by_pinctrl(void)
 static void extcon_dev_work(struct work_struct *work)
 {
     int key[3]={0,0,0};
-    int hw_version=0; 
+    int hw_version=0;
     /*hw 13 use special tri state key no use key2*/
     hw_version=get_hw_version();
     pr_err("%s ,hw_version=%d\n",__func__, hw_version);
@@ -100,18 +101,21 @@ static void extcon_dev_work(struct work_struct *work)
             extcon_set_state_sync(extcon_data->edev,1, 1);
             extcon_set_state_sync(extcon_data->edev,2, 0);
             extcon_set_state_sync(extcon_data->edev,3, 1);
+            state = 2; //middle position
         }
         else if(key[0]==0 && key[2]==1 )
         {
             extcon_set_state_sync(extcon_data->edev,1, 0);
             extcon_set_state_sync(extcon_data->edev,2, 1);
             extcon_set_state_sync(extcon_data->edev,3, 1);
+            state = 3; //bottom position
         }
         else if(key[0]==1 && key[2]==0 )
         {
             extcon_set_state_sync(extcon_data->edev,1, 1);
             extcon_set_state_sync(extcon_data->edev,2, 1);
             extcon_set_state_sync(extcon_data->edev,3, 0);
+            state = 1; //top position
         }
 
     }
@@ -137,6 +141,22 @@ static void extcon_dev_work(struct work_struct *work)
 
 }
 
+static ssize_t tri_state_show(struct device *dev,
+        struct device_attribute *attr, char *buf)
+{
+  return snprintf(buf, PAGE_SIZE, "%d\n", state);
+}
+
+static DEVICE_ATTR(tri_state, S_IRUGO | S_IWUSR, tri_state_show, NULL);
+
+static struct attribute *tri_key_attributes[] = {
+	&dev_attr_tri_state.attr,
+	NULL
+};
+
+static struct attribute_group tri_key_attribute_group = {
+        .attrs = tri_key_attributes
+};
 
 static irqreturn_t extcon_dev_interrupt(int irq, void *_dev)
 {
@@ -191,6 +211,7 @@ static int tristate_dev_probe(struct platform_device *pdev)
 {
 	struct device *dev;
 	int ret = 0;
+	int err = 0;
 
 	dev = &pdev->dev;
 
@@ -222,6 +243,12 @@ static int tristate_dev_probe(struct platform_device *pdev)
 		goto err_extcon_dev_register;
 	}
 
+	// tri_key node creation error handler
+	err = sysfs_create_group(&pdev->dev.kobj, &tri_key_attribute_group);
+	if (err) {
+		pr_err("tri_key:sysfs_create_group failed(%d)\n", err);
+		return -ENOMEM;
+	}
 
 	/* extcon registration */
 	extcon_data->edev =
