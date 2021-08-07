@@ -70,9 +70,9 @@ struct extcon_dev_data {
 	struct pinctrl *key_pinctrl;
 	struct pinctrl_state *set_state;
 
+	int state;
 };
 
-static int state = 0;
 static struct extcon_dev_data *extcon_data;
 static DEFINE_MUTEX(sem);
 static int set_gpio_by_pinctrl(void)
@@ -84,67 +84,60 @@ static int set_gpio_by_pinctrl(void)
 
 static void extcon_dev_work(struct work_struct *work)
 {
-    int key[3]={0,0,0};
-    int hw_version=0;
-    /*hw 13 use special tri state key no use key2*/
-    hw_version=get_hw_version();
-    pr_err("%s ,hw_version=%d\n",__func__, hw_version);
-    if (hw_version == 13)
-    {
-        key[0] = gpio_get_value(extcon_data->key1_gpio);
-        key[2] = gpio_get_value(extcon_data->key3_gpio);
+	int key[3]={0,0,0};
+	int hw_version=0;
+	/*hw 13 use special tri state key no use key2*/
+	hw_version=get_hw_version();
+	pr_err("%s ,hw_version=%d\n",__func__, hw_version);
+	if (hw_version == 13)
+	{
+		key[0] = gpio_get_value(extcon_data->key1_gpio);
+		key[2] = gpio_get_value(extcon_data->key3_gpio);
 
-        pr_err("%s ,key[0]=%d,key[1]=%d,key[2]=%d\n",
-        __func__, key[0], key[1], key[2]);
-        if(key[0]==1 && key[2]==1 )
-        {
-            extcon_set_state_sync(extcon_data->edev,1, 1);
-            extcon_set_state_sync(extcon_data->edev,2, 0);
-            extcon_set_state_sync(extcon_data->edev,3, 1);
-            state = 2; //middle position
-        }
-        else if(key[0]==0 && key[2]==1 )
-        {
-            extcon_set_state_sync(extcon_data->edev,1, 0);
-            extcon_set_state_sync(extcon_data->edev,2, 1);
-            extcon_set_state_sync(extcon_data->edev,3, 1);
-            state = 3; //bottom position
-        }
-        else if(key[0]==1 && key[2]==0 )
-        {
-            extcon_set_state_sync(extcon_data->edev,1, 1);
-            extcon_set_state_sync(extcon_data->edev,2, 1);
-            extcon_set_state_sync(extcon_data->edev,3, 0);
-            state = 1; //top position
-        }
+		pr_err("%s ,key[0]=%d,key[1]=%d,key[2]=%d\n",
+		__func__, key[0], key[1], key[2]);
 
-    }
-    else
-    {
+		if(key[0]==1 && key[2]==1 )
+		{
+			extcon_set_state_sync(extcon_data->edev,1, 1);
+			extcon_set_state_sync(extcon_data->edev,2, 0);
+			extcon_set_state_sync(extcon_data->edev,3, 1);
+			extcon_data->state = 2; //middle position
+		}
+		else if(key[0]==0 && key[2]==1 )
+		{
+			extcon_set_state_sync(extcon_data->edev,1, 0);
+			extcon_set_state_sync(extcon_data->edev,2, 1);
+			extcon_set_state_sync(extcon_data->edev,3, 1);
+			extcon_data->extstate = 3; //bottom position
+		}
+		else if(key[0]==1 && key[2]==0 )
+		{
+			extcon_set_state_sync(extcon_data->edev,1, 1);
+			extcon_set_state_sync(extcon_data->edev,2, 1);
+			extcon_set_state_sync(extcon_data->edev,3, 0);
+			extcon_data->state = 1; //top position
+		}
 
-        key[0] = gpio_get_value(extcon_data->key1_gpio);
-        key[1] = gpio_get_value(extcon_data->key2_gpio);
-        key[2] = gpio_get_value(extcon_data->key3_gpio);
+	}
+	else
+	{
+		key[0] = gpio_get_value(extcon_data->key1_gpio);
+		key[1] = gpio_get_value(extcon_data->key2_gpio);
+		key[2] = gpio_get_value(extcon_data->key3_gpio);
 
-        pr_err("%s ,key[0]=%d,key[1]=%d,key[2]=%d\n",
-        __func__, key[0], key[1], key[2]);
-        extcon_set_state_sync(
-                        extcon_data->edev,
-                        1, key[0]);
-        extcon_set_state_sync(
-                    extcon_data->edev,
-                    2, key[1]);
-        extcon_set_state_sync(
-                    extcon_data->edev,
-                    3, key[2]);
-    }
-
+		pr_err("%s ,key[0]=%d,key[1]=%d,key[2]=%d\n",
+		__func__, key[0], key[1], key[2]);
+		extcon_set_state_sync(extcon_data->edev, 1, key[0]);
+		extcon_set_state_sync(extcon_data->edev, 2, key[1]);
+		extcon_set_state_sync(extcon_data->edev, 3, key[2]);
+	}
 }
 
 static ssize_t tri_state_show(struct device *dev,
         struct device_attribute *attr, char *buf)
 {
-  return snprintf(buf, PAGE_SIZE, "%d\n", state);
+	return snprintf(buf, 256, "%d\n", extcon_data->state);
 }
 
 static DEVICE_ATTR(tri_state, S_IRUGO | S_IWUSR, tri_state_show, NULL);
