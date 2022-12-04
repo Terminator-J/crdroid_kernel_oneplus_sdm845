@@ -3383,7 +3383,7 @@ ccflags-y += -DWLAN_SCHED_REDUCTION_LIMIT=0
 ifeq ($(findstring arm, $(ARCH)),)
 	ccflags-y += -DWLAN_HOST_ARCH_ARM=0
 else
-	ccflags-y += -DWLAN_HOST_ARCH_ARM=1
+	ccflags-y += -DWLAN_HOST_ARCH_ARM=1 -Wno-strict-prototypes
 endif
 
 # inject some build related information
