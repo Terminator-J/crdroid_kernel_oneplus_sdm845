@@ -201,7 +201,8 @@ static void nfcsim_recv_wq(struct work_struct *work)
 
 		if (!IS_ERR(skb))
 			dev_kfree_skb(skb);
-		return;
+
+		skb = ERR_PTR(-ENODEV);
 	}
 
 	dev->cb(dev->nfc_digital_dev, dev->arg, skb);
@@ -481,8 +482,10 @@ static int __init nfcsim_init(void)
 exit_err:
 	pr_err("Failed to initialize nfcsim driver (%d)\n", rc);
 
-	nfcsim_link_free(link0);
-	nfcsim_link_free(link1);
+	if (link0)
+		nfcsim_link_free(link0);
+	if (link1)
+		nfcsim_link_free(link1);
 
 	return rc;
 }

@@ -26,7 +26,6 @@
 #include <net/nfc/nci.h>
 #include <net/nfc/nci_core.h>
 #include <linux/spi/spi.h>
-#include <linux/gpio.h>
 #include "nfcmrvl.h"
 
 #define SPI_WAIT_HANDSHAKE	1
@@ -130,9 +129,9 @@ static int nfcmrvl_spi_parse_dt(struct device_node *node,
 	}
 
 	ret = irq_of_parse_and_map(node, 0);
-	if (!ret) {
-		pr_err("Unable to get irq\n");
-		return -EINVAL;
+	if (ret < 0) {
+		pr_err("Unable to get irq, error: %d\n", ret);
+		return ret;
 	}
 	pdata->irq = ret;
 

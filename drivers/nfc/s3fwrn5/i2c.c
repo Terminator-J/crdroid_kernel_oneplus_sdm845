@@ -37,8 +37,8 @@ struct s3fwrn5_i2c_phy {
 	struct i2c_client *i2c_dev;
 	struct nci_dev *ndev;
 
-	int gpio_en;
-	int gpio_fw_wake;
+	unsigned int gpio_en;
+	unsigned int gpio_fw_wake;
 
 	struct mutex mutex;
 
@@ -157,7 +157,7 @@ static int s3fwrn5_i2c_read(struct s3fwrn5_i2c_phy *phy)
 	if (!skb)
 		return -ENOMEM;
 
-	memcpy(skb_put(skb, hdr_size), hdr, hdr_size);
+	skb_put_data(skb, hdr, hdr_size);
 
 	if (data_len == 0)
 		goto out;
