@@ -1,5 +1,5 @@
 config OPLUS_NFC
   bool "config oplus nfc chipset"
-  default y
+  default n
   help
 	define this config to get chipset version from dts.
