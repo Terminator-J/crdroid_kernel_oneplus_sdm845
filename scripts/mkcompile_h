@@ -48,9 +48,9 @@ else
 	LINUX_COMPILE_BY='Terminator-J'
 fi
 if test -z "$KBUILD_BUILD_HOST"; then
-	LINUX_COMPILE_HOST='steamdeck'
+	LINUX_COMPILE_HOST='crDroid'
 else
-	LINUX_COMPILE_HOST='steamdeck'
+	LINUX_COMPILE_HOST='crDroid'
 fi
 
 UTS_VERSION="#$VERSION"
