@@ -8,9 +8,9 @@ export ARCH=arm64
 export DEFCONFIG=enchilada_defconfig
 export COMPILER=clang
 #export LINKER=""
-export COMPILERDIR=$PARENT_DIR/clang-r487747c
-export AARCH64DIR=$PARENT_DIR/aarch64-linux-android-4.9
-export ARM32DIR=$PARENT_DIR/arm-linux-androideabi-4.9
+export COMPILERDIR=$PARENT_DIR/../../prebuilts/clang/host/linux-x86/clang-latest
+export AARCH64DIR=$PARENT_DIR/../../prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
+export ARM32DIR=$PARENT_DIR/../../prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9
 export PATH=${COMPILERDIR}/bin:${PATH}
 export VARIANT="OnePlus6(T)"
 
@@ -33,20 +33,20 @@ pause(){
 }
 
 toolchain(){
-  if [ ! -d $PARENT_DIR/aarch64-linux-android-4.9 ]; then
+  if [ ! -d $PARENT_DIR/../../prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 ]; then
     pause 'clone toolchain aarch64-linux-android-4.9 cross compiler'
-    git clone --branch lineage-19.1 --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 $PARENT_DIR/aarch64-linux-android-4.9
+    git clone --branch lineage-19.1 --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 $PARENT_DIR/../../prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
   fi
-  if [ ! -d $PARENT_DIR/arm-linux-androideabi-4.9 ]; then
+  if [ ! -d $PARENT_DIR/../../prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9 ]; then
     pause 'clone toolchain arm-linux-androideabi-4.9 32-bit cross compiler'
-    git clone --branch lineage-19.1 --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9 $PARENT_DIR/arm-linux-androideabi-4.9
+    git clone --branch lineage-19.1 --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9 $PARENT_DIR/../../prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9
   fi
 }
 
 clang(){
-  if [ ! -d $PARENT_DIR/clang-r487747c ]; then
+  if [ ! -d $PARENT_DIR/../../prebuilts/clang/host/linux-x86/clang-latest ]; then
     pause 'clone prebuilt crDroid Clang/LLVM 17.0.2 compiler'
-    git clone --depth=1 https://gitlab.com/crdroidandroid/android_prebuilts_clang_host_linux-x86_clang-r487747c $PARENT_DIR/clang-r487747c
+    git clone --depth=1 https://gitlab.com/crdroidandroid/android_prebuilts_clang_host_linux-x86_clang-r487747c $PARENT_DIR/../../prebuilts/clang/host/linux-x86/clang-latest
   fi
 }
 
