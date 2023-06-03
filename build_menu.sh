@@ -9,12 +9,15 @@ export DEFCONFIG=enchilada_defconfig
 export COMPILER=clang
 #export LINKER=""
 export COMPILERDIR=$PARENT_DIR/clang-r487747c
-export AARCHDIR=$PARENT_DIR/aarch64-linux-android-4.9
+export AARCH64DIR=$PARENT_DIR/aarch64-linux-android-4.9
+export ARM32DIR=$PARENT_DIR/arm-linux-androideabi-4.9
 export PATH=${COMPILERDIR}/bin:${PATH}
 export VARIANT="OnePlus6(T)"
 
 # LLVM=1 makes kernel use clang instead of gcc
+# LLVM_IAS makes kernel use clang integrated assembler
 export LLVM=1
+export LLVM_IAS=1
 
 # Color
 ON_BLUE=`echo -e "\033[44m"`	# On Blue
@@ -31,14 +34,18 @@ pause(){
 
 toolchain(){
   if [ ! -d $PARENT_DIR/aarch64-linux-android-4.9 ]; then
-    pause 'clone Toolchain aarch64-linux-android-4.9 cross compiler'
-    git clone --branch android-9.0.0_r59 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $PARENT_DIR/aarch64-linux-android-4.9
+    pause 'clone toolchain aarch64-linux-android-4.9 cross compiler'
+    git clone --branch lineage-19.1 --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 $PARENT_DIR/aarch64-linux-android-4.9
+  fi
+  if [ ! -d $PARENT_DIR/arm-linux-androideabi-4.9 ]; then
+    pause 'clone toolchain arm-linux-androideabi-4.9 32-bit cross compiler'
+    git clone --branch lineage-19.1 --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9 $PARENT_DIR/arm-linux-androideabi-4.9
   fi
 }
 
 clang(){
   if [ ! -d $PARENT_DIR/clang-r487747c ]; then
-    pause 'clone Android Clang/LLVM Prebuilts'
+    pause 'clone prebuilt crDroid Clang/LLVM 17.0.2 compiler'
     git clone --depth=1 https://gitlab.com/crdroidandroid/android_prebuilts_clang_host_linux-x86_clang-r487747c $PARENT_DIR/clang-r487747c
   fi
 }
@@ -58,7 +65,8 @@ build_kernel() {
   make -j$(nproc) O=out \
 	ARCH=${ARCH} \
 	CC=${COMPILER} \
-	CROSS_COMPILE=${AARCHDIR}/bin/aarch64-linux-android- \
+	CROSS_COMPILE=${AARCH64DIR}/bin/aarch64-linux-android- \
+	CROSS_COMPILE_ARM32=${ARM32DIR}/bin/arm-linux-androideabi- \
 	CLANG_TRIPLE=${COMPILERDIR}/bin/aarch64-linux-gnu-
 }
 
@@ -72,7 +80,7 @@ anykernel3(){
     cd $PARENT_DIR/AnyKernel3
     git reset --hard
     cp $DIR/out/arch/arm64/boot/Image.gz-dtb Image.gz-dtb
-    sed -i "s/ExampleKernel by osm0sis @ xda-developers/CrDroid Kernel by Terminator_J @ crdroid.net/g" anykernel.sh
+    sed -i "s/ExampleKernel by osm0sis @ xda-developers/crDroid Kernel by Terminator_J @ crdroid.net/g" anykernel.sh
     sed -i "s/=maguro/=OnePlus6/g" anykernel.sh
     sed -i "s/=toroplus/=OnePlus6T/g" anykernel.sh
     sed -i "s/=toro/=/g" anykernel.sh
@@ -88,14 +96,14 @@ anykernel3(){
     zip -r9 $PARENT_DIR/${releasefilename}.zip * -x .git README.md *placeholder
     cd $DIR
   else
-    echo 'Done building Flashable zip'
+    echo 'Done building flashable zip'
   fi
 }
 
 build_kernel_sdm845(){
   build_kernel
   curtime=`date +"%m_%d_%H%M"`
-  releasefilename=CrDroid_Test_${curtime}_${VARIANT}
+  releasefilename=crDroid_Test_${curtime}_${VARIANT}
   anykernel3
   clean
 }
