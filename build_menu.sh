@@ -78,7 +78,7 @@ anykernel3(){
     sed -i "s/=toro/=/g" anykernel.sh
     sed -i "s/=tuna/=/g" anykernel.sh
     sed -i "s/is_slot_device=0/is_slot_device=1/g" anykernel.sh
-    sed -i "s/omap\/omap_hsmmc\.0\/by-name\/boot/13100000\.ufs\/by-name\/boot/g" anykernel.sh
+    sed -i "s/\/dev\/block\/platform\/omap\/omap_hsmmc\.0\/by-name\/boot/boot/g" anykernel.sh
     sed -i "s/backup_file/#backup_file/g" anykernel.sh
     sed -i "s/replace_string/#replace_string/g" anykernel.sh
     sed -i "s/insert_line/#insert_line/g" anykernel.sh
