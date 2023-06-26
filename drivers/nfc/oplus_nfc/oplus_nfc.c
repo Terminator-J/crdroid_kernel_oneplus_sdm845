@@ -8,7 +8,6 @@
 #include <linux/soc/qcom/smem.h>
 #include <linux/seq_file.h>
 #include <linux/platform_device.h>
-#include <soc/oplus/system/oplus_project.h>
 #include <linux/io.h>
 #include <stdbool.h>
 
@@ -100,8 +99,6 @@ static int oplus_nfc_probe(struct platform_device *pdev)
 {
 	struct device_node *np;
 	struct device* dev;
-	unsigned int project;
-	unsigned int operator;
 	int readRet;
 	char prop_project[32];
 	char prop_project_operator[32];
@@ -116,13 +113,11 @@ static int oplus_nfc_probe(struct platform_device *pdev)
 		pr_err("%s, no device", __func__);
 		goto error_init;
 	}
-	project = get_project();
-	operator = get_Operator_Version();
-	sprintf(prop_project_operator, "chipset-%d-%d", project, operator);
+	sprintf(prop_project_operator, "chipset-%d-%d");
 	pr_err("%s, prop_project_operator to be read = %s", __func__, prop_project_operator);
 	readRet = of_property_read_string(dev->of_node, prop_project_operator, &chipset_node);
 	if (readRet != 0) {
-		sprintf(prop_project, "chipset-%d", project);
+		sprintf(prop_project, "chipset-%d");
 		pr_err("%s, prop_project to be read = %s", __func__, prop_project);
 		readRet = of_property_read_string(dev->of_node, prop_project, &chipset_node);
 	}
