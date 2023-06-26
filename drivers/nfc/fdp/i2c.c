@@ -27,7 +27,6 @@
 
 #define FDP_I2C_DRIVER_NAME	"fdp_nci_i2c"
 
-#define FDP_DP_POWER_GPIO_NAME	"power"
 #define FDP_DP_CLOCK_TYPE_NAME	"clock-type"
 #define FDP_DP_CLOCK_FREQ_NAME	"clock-freq"
 #define FDP_DP_FW_VSC_CFG_NAME	"fw-vsc-cfg"
@@ -79,14 +78,14 @@ static void fdp_nci_i2c_add_len_lrc(struct sk_buff *skb)
 
 	/* Add length header */
 	len = skb->len;
-	*skb_push(skb, 1) = len & 0xff;
-	*skb_push(skb, 1) = len >> 8;
+	*(u8 *)skb_push(skb, 1) = len & 0xff;
+	*(u8 *)skb_push(skb, 1) = len >> 8;
 
 	/* Compute and add lrc */
 	for (i = 0; i < len + 2; i++)
 		lrc ^= skb->data[i];
 
-	*skb_put(skb, 1) = lrc;
+	skb_put_u8(skb, lrc);
 }
 
 static void fdp_nci_i2c_remove_len_lrc(struct sk_buff *skb)
@@ -196,7 +195,7 @@ static int fdp_nci_i2c_read(struct fdp_i2c_phy *phy, struct sk_buff **skb)
 				goto flush;
 			}
 
-			memcpy(skb_put(*skb, len), tmp, len);
+			skb_put_data(*skb, tmp, len);
 			fdp_nci_i2c_dump_skb(&client->dev, "fdp_rd", *skb);
 
 			fdp_nci_i2c_remove_len_lrc(*skb);
@@ -274,9 +273,6 @@ static void fdp_nci_i2c_read_device_properties(struct device *dev,
 					   len * sizeof(**fw_vsc_cfg),
 					   GFP_KERNEL);
 
-		if (!*fw_vsc_cfg)
-			goto alloc_err;
-
 		r = device_property_read_u8_array(dev, FDP_DP_FW_VSC_CFG_NAME,
 						  *fw_vsc_cfg, len);
 
@@ -290,13 +286,18 @@ vsc_read_err:
 		*fw_vsc_cfg = NULL;
 	}
 
-alloc_err:
 	dev_dbg(dev, "Clock type: %d, clock frequency: %d, VSC: %s",
 		*clock_type, *clock_freq, *fw_vsc_cfg != NULL ? "yes" : "no");
 }
 
-static int fdp_nci_i2c_probe(struct i2c_client *client,
-			     const struct i2c_device_id *id)
+static const struct acpi_gpio_params power_gpios = { 0, 0, false };
+
+static const struct acpi_gpio_mapping acpi_fdp_gpios[] = {
+	{ "power-gpios", &power_gpios, 1 },
+	{},
+};
+
+static int fdp_nci_i2c_probe(struct i2c_client *client)
 {
 	struct fdp_i2c_phy *phy;
 	struct device *dev = &client->dev;
@@ -318,8 +319,7 @@ static int fdp_nci_i2c_probe(struct i2c_client *client,
 		return -ENODEV;
 	}
 
-	phy = devm_kzalloc(dev, sizeof(struct fdp_i2c_phy),
-			   GFP_KERNEL);
+	phy = devm_kzalloc(dev, sizeof(struct fdp_i2c_phy), GFP_KERNEL);
 	if (!phy)
 		return -ENOMEM;
 
@@ -327,19 +327,22 @@ static int fdp_nci_i2c_probe(struct i2c_client *client,
 	phy->next_read_size = FDP_NCI_I2C_MIN_PAYLOAD;
 	i2c_set_clientdata(client, phy);
 
-	r = request_threaded_irq(client->irq, NULL, fdp_nci_i2c_irq_thread_fn,
-				 IRQF_TRIGGER_RISING | IRQF_ONESHOT,
-				 FDP_I2C_DRIVER_NAME, phy);
+	r = devm_request_threaded_irq(dev, client->irq,
+				      NULL, fdp_nci_i2c_irq_thread_fn,
+				      IRQF_TRIGGER_RISING | IRQF_ONESHOT,
+				      FDP_I2C_DRIVER_NAME, phy);
 
 	if (r < 0) {
 		nfc_err(&client->dev, "Unable to register IRQ handler\n");
 		return r;
 	}
 
-	/* Requesting the power gpio */
-	phy->power_gpio = devm_gpiod_get(dev, FDP_DP_POWER_GPIO_NAME,
-					 GPIOD_OUT_LOW);
+	r = devm_acpi_dev_add_driver_gpios(dev, acpi_fdp_gpios);
+	if (r)
+		dev_dbg(dev, "Unable to add GPIO mapping table\n");
 
+	/* Requesting the power gpio */
+	phy->power_gpio = devm_gpiod_get(dev, "power", GPIOD_OUT_LOW);
 	if (IS_ERR(phy->power_gpio)) {
 		nfc_err(dev, "Power GPIO request failed\n");
 		return PTR_ERR(phy->power_gpio);
@@ -374,12 +377,6 @@ static int fdp_nci_i2c_remove(struct i2c_client *client)
 	return 0;
 }
 
-static struct i2c_device_id fdp_nci_i2c_id_table[] = {
-	{"int339a", 0},
-	{}
-};
-MODULE_DEVICE_TABLE(i2c, fdp_nci_i2c_id_table);
-
 static const struct acpi_device_id fdp_nci_i2c_acpi_match[] = {
 	{"INT339A", 0},
 	{}
@@ -391,8 +388,7 @@ static struct i2c_driver fdp_nci_i2c_driver = {
 		   .name = FDP_I2C_DRIVER_NAME,
 		   .acpi_match_table = ACPI_PTR(fdp_nci_i2c_acpi_match),
 		  },
-	.id_table = fdp_nci_i2c_id_table,
-	.probe = fdp_nci_i2c_probe,
+	.probe_new = fdp_nci_i2c_probe,
 	.remove = fdp_nci_i2c_remove,
 };
 module_i2c_driver(fdp_nci_i2c_driver);
