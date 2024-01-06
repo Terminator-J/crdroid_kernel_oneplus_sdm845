@@ -1,4 +1,5 @@
 /* Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2023, Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Copyright (c) 2023, Qualcomm Innovation Center, Inc. All rights reserved.
  * This program is free software; you can redistribute it and/or modify
@@ -376,10 +377,9 @@ static void voip_process_ul_pkt(uint8_t *voc_pkt,
 				pr_err("%s: pkt_len %d is < required len\n",
 						__func__, pkt_len);
 				spin_unlock_irqrestore(&prtd->dsp_ul_lock,
-							dsp_flags);
+						dsp_flags);
 				return;
 			}
-
 			/* Remove the DSP frame info header. Header format:
 			 * Bits 0-3: Frame rate
 			 * Bits 4-7: Frame type
@@ -404,10 +404,9 @@ static void voip_process_ul_pkt(uint8_t *voc_pkt,
 				pr_err("%s: pkt_len %d is < required len\n",
 						__func__, pkt_len);
 				spin_unlock_irqrestore(&prtd->dsp_ul_lock,
-							dsp_flags);
+						dsp_flags);
 				return;
 			}
-
 			/* Remove the DSP frame info header.
 			 * Header format:
 			 * Bits 0-3: frame rate
@@ -449,10 +448,9 @@ static void voip_process_ul_pkt(uint8_t *voc_pkt,
 				pr_err("%s: pkt_len %d is < required len\n",
 						__func__, pkt_len);
 				spin_unlock_irqrestore(&prtd->dsp_ul_lock,
-							dsp_flags);
+						dsp_flags);
 				return;
 			}
-
 			/* There are two frames in the buffer. Length of the
 			 * first frame:
 			 */
@@ -492,7 +490,7 @@ static void voip_process_ul_pkt(uint8_t *voc_pkt,
 					pr_err("%s: pkt_len %d is < required len\n",
 							__func__, pkt_len);
 					spin_unlock_irqrestore(&prtd->dsp_ul_lock,
-								dsp_flags);
+							dsp_flags);
 					return;
 				}
 				/* There are two frames in the buffer. Length
