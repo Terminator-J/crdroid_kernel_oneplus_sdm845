@@ -2441,13 +2441,11 @@ static bool iommu_addr_in_svm_ranges(struct kgsl_iommu_pt *pt,
 		return false;
 
 	if ((gpuaddr >= pt->compat_va_start && gpuaddr < pt->compat_va_end) &&
-		(end > pt->compat_va_start &&
-			end <= pt->compat_va_end))
+		(end > pt->compat_va_start && end <= pt->compat_va_end))
 		return true;
 
 	if ((gpuaddr >= pt->svm_start && gpuaddr < pt->svm_end) &&
-		(end > pt->svm_start &&
-			end <= pt->svm_end))
+		(end > pt->svm_start && end <= pt->svm_end))
 		return true;
 
 	return false;
