@@ -5,7 +5,7 @@ DIR=`readlink -f .`
 PARENT_DIR=`readlink -f ${DIR}/..`
 
 export ARCH=arm64
-export DEFCONFIG=enchilada_defconfig
+export DEFCONFIG=enchilada_combined_defconfig
 export COMPILER=clang
 #export LINKER=""
 export COMPILERDIR=$PARENT_DIR/clang-r487747c
@@ -55,12 +55,14 @@ clean(){
   make clean -j28
   make mrproper -j28
   [ -d "out" ] && rm -rf out
+  [ -f "arch/arm64/configs/enchilada_combined_defconfig" ] && rm -f arch/arm64/configs/enchilada_combined_defconfig
   echo "${GREEN}***** Cleaning Done *****${STD}"
 }
 
 build_kernel() {
   echo "${GREEN}***** Compiling kernel for ${VARIANT} *****${STD}"
   [ ! -d "out" ] && mkdir out
+  cat arch/arm64/configs/enchilada_defconfig arch/arm64/configs/vendor/debugfs.config > arch/arm64/configs/enchilada_combined_defconfig
   make O=out ARCH=${ARCH} ${DEFCONFIG}
   make -j28 O=out \
     ARCH=${ARCH} \
