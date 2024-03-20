@@ -5,12 +5,13 @@ DIR=`readlink -f .`
 PARENT_DIR=`readlink -f ${DIR}/..`
 
 export ARCH=arm64
-export DEFCONFIG=enchilada_combined_defconfig
+export DEFCONFIG=vendor/enchilada_combined_defconfig
 export COMPILER=clang
 #export LINKER=""
 export COMPILERDIR=$PARENT_DIR/clang-r498229b
 export AARCH64DIR=$PARENT_DIR/aarch64-linux-android-4.9
 export ARM32DIR=$PARENT_DIR/arm-linux-androideabi-4.9
+export DTC_EXT=${DIR}/out/host/linux-x86/bin/dtc
 export PATH=${COMPILERDIR}/bin:${PATH}
 export VARIANT="cr10.x"
 
@@ -55,14 +56,14 @@ clean(){
   make clean -j28
   make mrproper -j28
   [ -d "out" ] && rm -rf out
-  [ -f "arch/arm64/configs/enchilada_combined_defconfig" ] && rm -f arch/arm64/configs/enchilada_combined_defconfig
+  [ -f "arch/arm64/configs/vendor/enchilada_combined_defconfig" ] && rm -f arch/arm64/configs/vendor/enchilada_combined_defconfig
   echo "${GREEN}***** Cleaning Done *****${STD}"
 }
 
 build_kernel() {
   echo "${GREEN}***** Compiling kernel for ${VARIANT} *****${STD}"
   [ ! -d "out" ] && mkdir out
-  cat arch/arm64/configs/enchilada_defconfig arch/arm64/configs/vendor/debugfs.config > arch/arm64/configs/enchilada_combined_defconfig
+  cat arch/arm64/configs/vendor/enchilada_defconfig arch/arm64/configs/vendor/debugfs.config > arch/arm64/configs/vendor/enchilada_combined_defconfig
   make O=out ARCH=${ARCH} ${DEFCONFIG}
   make -j28 O=out \
     ARCH=${ARCH} \
