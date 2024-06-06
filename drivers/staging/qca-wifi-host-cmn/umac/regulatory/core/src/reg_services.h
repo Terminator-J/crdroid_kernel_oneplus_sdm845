@@ -413,8 +413,7 @@ static inline bool reg_is_etsi13_regdmn(struct wlan_objmgr_pdev *pdev)
 }
 
 static inline bool
-reg_is_etsi13_srd_chan_allowed_master_mode(struct wlan_objmgr_pdev *pdev,
-					   enum QDF_OPMODE vdev_opmode)
+reg_is_etsi13_srd_chan_allowed_master_mode(struct wlan_objmgr_pdev *pdev)
 {
 	return true;
 }
@@ -438,15 +437,13 @@ bool reg_is_etsi13_srd_chan(struct wlan_objmgr_pdev *pdev, uint32_t chan);
 
 /**
  * reg_is_etsi13_srd_chan_allowed_master_mode() - Checks if regdmn is ETSI13
- * and SRD channels are allowed in master mode or not for particular vdev
+ * and SRD channels are allowed in master mode or not.
  *
  * @pdev: pdev ptr
- * @vdev_opmode: vdev opmode
  *
  * Return: true or false
  */
-bool reg_is_etsi13_srd_chan_allowed_master_mode(struct wlan_objmgr_pdev *pdev,
-						enum QDF_OPMODE vdev_opmode);
+bool reg_is_etsi13_srd_chan_allowed_master_mode(struct wlan_objmgr_pdev *pdev);
 
 static inline bool reg_is_dsrc_chan(struct wlan_objmgr_pdev *pdev,
 				    uint32_t chan)
