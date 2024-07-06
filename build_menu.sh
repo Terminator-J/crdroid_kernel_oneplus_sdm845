@@ -8,7 +8,7 @@ export ARCH=arm64
 export DEFCONFIG=enchilada_combined_defconfig
 export COMPILER=clang
 #export LINKER=""
-export COMPILERDIR=$PARENT_DIR/clang-r487747c
+export COMPILERDIR=$PARENT_DIR/clang-r530567
 export AARCH64DIR=$PARENT_DIR/aarch64-linux-android-4.9
 export ARM32DIR=$PARENT_DIR/arm-linux-androideabi-4.9
 export PATH=${COMPILERDIR}/bin:${PATH}
@@ -44,16 +44,16 @@ toolchain(){
 }
 
 clang(){
-  if [ ! -d $PARENT_DIR/clang-r487747c ]; then
+  if [ ! -d $PARENT_DIR/clang-r530567 ]; then
     pause 'clone prebuilt crDroid Clang/LLVM compiler'
-    git clone --depth=1 https://gitlab.com/crdroidandroid/android_prebuilts_clang_host_linux-x86_clang-r487747c $PARENT_DIR/clang-r487747c
+    git clone --depth=1 https://gitlab.com/crdroidandroid/android_prebuilts_clang_host_linux-x86_clang-r530567 $PARENT_DIR/clang-r530567
   fi
 }
 
 clean(){
   echo "${GREEN}***** Cleaning in Progress *****${STD}"
-  make clean -j28
-  make mrproper -j28
+  make clean -j25
+  make mrproper -j25
   [ -d "out" ] && rm -rf out
   [ -f "arch/arm64/configs/enchilada_combined_defconfig" ] && rm -f arch/arm64/configs/enchilada_combined_defconfig
   echo "${GREEN}***** Cleaning Done *****${STD}"
@@ -64,7 +64,7 @@ build_kernel() {
   [ ! -d "out" ] && mkdir out
   cat arch/arm64/configs/enchilada_defconfig arch/arm64/configs/vendor/debugfs.config > arch/arm64/configs/enchilada_combined_defconfig
   make O=out ARCH=${ARCH} ${DEFCONFIG}
-  make -j28 O=out \
+  make -j25 O=out \
     ARCH=${ARCH} \
     CC=${COMPILER} \
     CROSS_COMPILE=${AARCH64DIR}/bin/aarch64-linux-android- \
