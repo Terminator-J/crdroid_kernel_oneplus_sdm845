@@ -93,7 +93,7 @@ anykernel3(){
     sed -i "s/=toroplus/=OnePlus6T/g" anykernel.sh
     sed -i "s/=toro/=/g" anykernel.sh
     sed -i "s/=tuna/=/g" anykernel.sh
-    sed -i "s/is_slot_device=0/is_slot_device=1/g" anykernel.sh
+    sed -i "s/IS_SLOT_DEVICE=0/IS_SLOT_DEVICE=1/g" anykernel.sh
     sed -i "s/\/dev\/block\/platform\/omap\/omap_hsmmc\.0\/by-name\/boot/boot/g" anykernel.sh
     sed -i "s/backup_file/#backup_file/g" anykernel.sh
     sed -i "s/replace_string/#replace_string/g" anykernel.sh
