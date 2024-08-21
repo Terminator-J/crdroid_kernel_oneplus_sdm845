@@ -8,7 +8,7 @@ export ARCH=arm64
 export DEFCONFIG=enchilada_combined_defconfig
 export COMPILER=clang
 #export LINKER=""
-export COMPILERDIR=$PARENT_DIR/clang-r530567
+export COMPILERDIR=$PARENT_DIR/clang-r536225
 export AARCH64DIR=$PARENT_DIR/aarch64-linux-android-4.9
 export ARM32DIR=$PARENT_DIR/arm-linux-androideabi-4.9
 export PATH=${COMPILERDIR}/bin:${PATH}
@@ -44,9 +44,9 @@ toolchain(){
 }
 
 clang(){
-  if [ ! -d $PARENT_DIR/clang-r530567 ]; then
+  if [ ! -d $PARENT_DIR/clang-r536225 ]; then
     pause 'clone prebuilt crDroid Clang/LLVM compiler'
-    git clone --depth=1 https://gitlab.com/crdroidandroid/android_prebuilts_clang_host_linux-x86_clang-r530567 $PARENT_DIR/clang-r530567
+    git clone --depth=1 https://gitlab.com/crdroidandroid/android_prebuilts_clang_host_linux-x86_clang-r536225 $PARENT_DIR/clang-r536225
   fi
 }
 
