@@ -1,5 +1,5 @@
 /* Copyright (c) 2018, 2020 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -392,12 +392,6 @@ void *vidc_get_drv_data(struct device *dev)
 		driver_data = (struct msm_vidc_platform_data *)match->data;
 
 	driver_data->enable_feature_config = 0;
-
-	if (!strcmp(match->compatible, "qcom,sdm845-vidc")) {
-
-		driver_data->enable_feature_config |= DEC_DYNAMIC_CROP;
-
-	}
 
 	if (!of_find_property(dev->of_node, "sku-index", NULL) ||
 			!driver_data) {

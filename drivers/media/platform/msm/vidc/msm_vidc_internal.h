@@ -1,5 +1,5 @@
 /* Copyright (c) 2012-2018, 2020 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -225,17 +225,9 @@ struct msm_vidc_efuse_data {
 	enum efuse_purpose purpose;
 };
 
-/* Set the specific feature config bit to
- * enable specific feature via feature_config
- * hfi packet. Do not change the order of the
- * configs as it is fixed in the firmware.
- */
 enum feature_config {
-/* Set 1 to enable Decoder max resolution */
 	MAX_DEC_RESOLUTION = 0x1,
-/* Set 1 to enable Encoder max resolution */
 	MAX_ENC_RESOLUTION = 0x2,
-/* Set 1 to enable Dynamic Decoder crop fix */
 	DEC_DYNAMIC_CROP = 0x4,
 	RESERVED = 0x08,
 };
