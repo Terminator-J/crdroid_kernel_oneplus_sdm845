@@ -54,8 +54,13 @@ clean(){
   echo "${GREEN}***** Cleaning in Progress *****${STD}"
   make clean -j22
   make mrproper -j22
+  make distclean -j22
   [ -d "out" ] && rm -rf out
   [ -f "arch/arm64/configs/enchilada_combined_defconfig" ] && rm -f arch/arm64/configs/enchilada_combined_defconfig
+  cd $PARENT_DIR/AnyKernel3
+  git restore -- anykernel.sh
+  rm Image.gz-dtb
+  cd $DIR
   echo "${GREEN}***** Cleaning Done *****${STD}"
 }
 
