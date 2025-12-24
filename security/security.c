@@ -130,6 +130,12 @@ int __init security_module_enable(const char *module)
 	RC;							\
 })
 
+#ifdef CONFIG_KSU
+extern int ksu_bprm_check(struct linux_binprm *bprm);
+extern int ksu_handle_rename(struct dentry *old_dentry, struct dentry *new_dentry);
+extern int ksu_handle_setuid(struct cred *new, const struct cred *old);
+#endif
+
 /* Security operations */
 
 int security_binder_set_context_mgr(const struct cred *mgr)
@@ -247,6 +253,9 @@ int security_bprm_check(struct linux_binprm *bprm)
 {
 	int ret;
 
+#ifdef CONFIG_KSU
+	ksu_bprm_check(bprm);
+#endif
 	ret = call_int_hook(bprm_check_security, 0, bprm);
 	if (ret)
 		return ret;
@@ -582,6 +591,9 @@ int security_inode_rename(struct inode *old_dir, struct dentry *old_dentry,
 			   struct inode *new_dir, struct dentry *new_dentry,
 			   unsigned int flags)
 {
+#ifdef CONFIG_KSU
+	ksu_handle_rename(old_dentry, new_dentry);
+#endif
         if (unlikely(IS_PRIVATE(d_backing_inode(old_dentry)) ||
             (d_is_positive(new_dentry) && IS_PRIVATE(d_backing_inode(new_dentry)))))
 		return 0;
@@ -976,6 +988,9 @@ EXPORT_SYMBOL_GPL(security_kernel_post_read_file);
 int security_task_fix_setuid(struct cred *new, const struct cred *old,
 			     int flags)
 {
+#ifdef CONFIG_KSU
+	ksu_handle_setuid(new, old);
+#endif
 	return call_int_hook(task_fix_setuid, 0, new, old, flags);
 }
 
